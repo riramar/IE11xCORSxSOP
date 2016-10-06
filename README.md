@@ -1,4 +1,4 @@
-# IE11xCORS
+# IE11xCORSxSOP
 IE11 is not following CORS specification for local files like Chrome and Firefox.<br>
 I've contacted Microsoft and they say this is not a security issue so I'm sharing it.<br>
 From my tests IE11 is not following CORS specifications for local files as supposed to be.<br>
